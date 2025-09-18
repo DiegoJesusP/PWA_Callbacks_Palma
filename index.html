@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Callbacks DJHP</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;line-height:1.4}
+    body{max-width:760px;margin:32px auto;padding:20px}
+    h1{font-size:1.4rem;margin-bottom:8px}
+    label{display:block;margin:12px 0 6px}
+    input[type=number]{width:120px;padding:6px;font-size:1rem}
+    button{padding:8px 12px;font-size:1rem;border-radius:6px;border:1px solid #ccc;background:#f7f7f7}
+    .result{margin-top:18px;padding:12px;border-radius:8px;background:#fafafa;border:1px solid #eee;min-height:50px}
+    .line{font-family:monospace;padding:4px 0}
+    .small{font-size:0.9rem;color:#444}
+    .error{color:#a00}
+  </style>
+</head>
+<body>
+  <h1>Ejercicio: Callbacks</h1>
+  <p class="small">Introduce un número (máx. 25). Al calcular, se mostrarán las multiplicaciones <strong>n x 1, n x 2, ... n x n</strong></p>
+
+  <form id="form">
+    <label for="num">Número a multiplicar (entero entre 1 y 25):</label>
+    <input id="num" name="num" type="number" min="1" max="25" value="10" required />
+    <div style="margin-top:10px">
+      <button id="calc">Calcular</button>
+      <button id="cancel" type="button" style="margin-left:8px;display:none">Cancelar</button>
+    </div>
+    <p id="msg" class="small"></p>
+  </form>
+
+  <div class="result" id="result" aria-live="polite"></div>
+
+  <script>
+    // Explicación breve (en el código):
+    // - "Callback" = función que se pasa como argumento y se ejecuta después (por ejemplo, en un evento o en setInterval).
+    // - "Encolamiento de callbacks" = el motor de JavaScript mantiene una cola de callbacks listos para ejecutarse (event loop).
+    // Aquí controlamos la secuencia de multiplicaciones con un setInterval (cada iteración ejecuta su callback).
+
+    (function () {
+      var form = document.getElementById('form');
+      var input = document.getElementById('num');
+      var btn = document.getElementById('calc');
+      var cancelBtn = document.getElementById('cancel');
+      var msg = document.getElementById('msg');
+      var result = document.getElementById('result');
+
+      var intervalId = null; // para poder cancelar
+
+      // Utilizamos SOLO callbacks: addEventListener callbacks, setInterval callback, handlers.
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        startSequence();
+      });
+
+      cancelBtn.addEventListener('click', function () {
+        stopSequence('Operación cancelada por el usuario.');
+      });
+
+      function startSequence() {
+        // Validación básica
+        var n = parseInt(input.value, 10);
+        if (Number.isNaN(n) || n < 1 || n > 25) {
+          msg.textContent = 'Introduce un número entero entre 1 y 25.';
+          msg.className = 'small error';
+          return;
+        }
+        msg.textContent = '';
+        result.innerHTML = '';
+
+        // Desactivar botón y mostrar cancelar para evitar solapamientos
+        btn.disabled = true;
+        cancelBtn.style.display = 'inline-block';
+
+        var i = 1;
+        // setInterval usa un callback que se encola repetidamente en el event loop.
+        intervalId = setInterval(function () {
+          // callback de la iteración
+          var line = document.createElement('div');
+          line.className = 'line';
+          line.textContent = n + ' × ' + i + ' = ' + (n * i);
+          result.appendChild(line);
+
+          // Avanzamos el contador
+          i += 1;
+          // Cuando llegamos a n+1 detenemos el intervalo (aquí también es parte del mismo callback)
+          if (i > n) {
+            stopSequence('Completado.');
+          }
+        }, 300); // 300ms entre cada multiplicación para ver la secuencia
+      }
+
+      function stopSequence(finalMsg) {
+        if (intervalId !== null) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        btn.disabled = false;
+        cancelBtn.style.display = 'none';
+        msg.textContent = finalMsg || '';
+        msg.className = 'small';
+      }
+
+    })();
+  </script>
+</body>
+</html>
