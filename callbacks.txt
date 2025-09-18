@@ -1,0 +1,11 @@
+¿Qué son las callbacks y qué es el encolamiento de callbacks?
+
+* Callback (o función de devolución): es una función que se pasa como argumento a otra función y que se ejecutará más tarde, cuando ocurra un evento o cuando termine una operación. 
+Ejemplos: manejadores de eventos (addEventListener), el callback de setTimeout/setInterval, o la función que pasas a Array.prototype.map.
+
+* Encolamiento de callbacks (callback queue / event loop): en JavaScript el motor tiene una cola donde se ponen los callbacks listos para ejecutarse. 
+El event loop saca un callback de esa cola y lo ejecuta cuando el hilo principal está libre. Esto es por eso que callbacks (aunque parezcan síncronos en el código) se ejecutan en un orden controlado por la cola y el loop.
+
+* Encolamiento de funciones: idea general de poner funciones en una estructura (cola) para ejecutarlas en secuencia más tarde. 
+En interfaces web se usa mucho para controlar tareas repetidas o diferidas sin bloquear la UI (por ejemplo setInterval, requestAnimationFrame, o colas propias).
+
